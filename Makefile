@@ -13,7 +13,7 @@ AS      = riscv64-linux-gnu-gcc   # Use GCC to assemble .s (handles pseudo-ops)
 LD      = riscv64-linux-gnu-gcc
 
 # ---------- Flags -----------------------------------------------
-MARCH   = rv64imafd
+MARCH   = rv64gcv
 MABI    = lp64d
 
 CFLAGS  = -march=$(MARCH) -mabi=$(MABI) -O2 -Wall -Wextra \
