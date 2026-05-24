@@ -1,33 +1,53 @@
-# --- ekf_vector.s ---
-# Vectorized implementation of EKF Kernels
+# ==============================================================================
+# ekf_vector.s - RISC-V Vector (RVV) Assembly: EKF Core logic
+# Milestone 4 - Vectorised implementation
+# ==============================================================================
 
 .section .text
-.globl vector_ekf_predict_p
-.globl vector_scale_mat
+.align 2
 
-# 1. P = F * P * F' + Q (Simplified Part: P = F * P_scalar_scale)
-# Illustrates vfmacc.vf (Fused Multiply-Accumulate Vector-Scalar)
-# a0: mat_P, a1: mat_F, fa0: scalar_scale, a2: total_elements
-vector_scale_mat:
-v_scale_loop:
-    vsetvli t0, a2, e64, m1, ta, ma
-    vle64.v v1, (a1)
-    vfmul.vf v2, v1, fa0    # Vector * Scalar
-    vse64.v v2, (a0)
-    
-    slli t1, t0, 3
-    add a0, a0, t1
-    add a1, a1, t1
-    sub a2, a2, t0
-    bnez a2, v_scale_loop
+# Export the main EKF function so the C driver can see it
+.globl ekf_update
+
+# ==============================================================================
+# EKF UPDATE KERNEL
+# This is the main function called by the driver
+# ==============================================================================
+ekf_update:
+    # --- Function Prologue ---
+    addi sp, sp, -64
+    sd ra, 56(sp)
+    sd s0, 48(sp)
+    # (Add other saved registers if your specific code uses them)
+
+    # --------------------------------------------------------------------------
+    # YOUR EKF LOGIC GOES HERE
+    # Note: When you need to add or multiply matrices, your code should 
+    # 'jal' (jump) to the functions in lkf_vector.s
+    # --------------------------------------------------------------------------
+
+    # --- Function Epilogue ---
+    ld ra, 56(sp)
+    ld s0, 48(sp)
+    addi sp, sp, 64
     ret
 
-# 2. Strided Load Example (for Transpose access in EKF)
-# a0: out_vec, a1: mat_src, a2: stride_in_elements, a3: VL
-.globl vector_load_column
-vector_load_column:
-    slli t0, a2, 3          # stride in bytes = elements * 8
-    vsetvli t1, a3, e64, m1, ta, ma
-    vlse64.v v1, (a1), t0   # Strided load: loads a column as a vector
-    vse64.v v1, (a0)
+# ==============================================================================
+# EKF SPECIFIC HELPER KERNELS (Keep these if you have them)
+# ==============================================================================
+
+.globl ekf_predict
+ekf_predict:
+    # Your vectorized prediction logic
     ret
+
+.globl h_func_asm
+h_func_asm:
+    # Your measurement function logic
+    ret
+
+# ------------------------------------------------------------------------------
+# IMPORTANT: DO NOT INCLUDE mat_add_vec, matmul_vec, etc. IN THIS FILE.
+# They are already defined in lkf_vector.s. 
+# The linker will automatically find them there.
+# ------------------------------------------------------------------------------
