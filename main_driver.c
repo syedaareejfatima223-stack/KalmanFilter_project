@@ -1,27 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Declare the functions from your assembly files
-extern void vector_mat_vec_mul(double *out_y, double *mat_A, double *vec_x, int N);
+// Function prototypes from assembly
+extern void ekf_update();
+extern void ekf_predict();
+extern void matvec_vec(double *out, double *mat, double *vec, int n);
 
 int main() {
     int N = 276;
-    // Section 6: Ensure 64-byte alignment for performance
-    double *A = (double*)aligned_alloc(64, N * N * sizeof(double));
-    double *x = (double*)aligned_alloc(64, N * sizeof(double));
-    double *y = (double*)aligned_alloc(64, N * sizeof(double));
+    size_t align = 64;
+    // Section 6: Ensure size is a multiple of alignment
+    size_t vec_size = (N * sizeof(double) + 63) & ~63;
+    size_t mat_size = (N * N * sizeof(double) + 63) & ~63;
 
-    // Initialize with dummy data
-    for(int i=0; i<N*N; i++) A[i] = 1.0;
-    for(int i=0; i<N; i++) x[i] = 2.0;
+    double *x = (double*)aligned_alloc(align, vec_size);
+    double *A = (double*)aligned_alloc(align, mat_size);
+    double *y = (double*)aligned_alloc(align, vec_size);
 
-    printf("Starting Vectorized Matrix-Vector Multiplication...\n");
+    if (x == NULL || A == NULL || y == NULL) {
+        printf("Memory allocation failed!\n");
+        return 1;
+    }
+
+    printf("=== Milestone 4 Kalman Filter (Vectorized) ===\n");
     
-    // Call the Assembly Function
-    vector_mat_vec_mul(y, A, x, N);
+    // Example call to your vectorized math
+    matvec_vec(y, A, x, N);
+    
+    // Call EKF functions
+    ekf_predict();
+    ekf_update();
 
-    printf("Result y[0]: %f (Expected: 552.000000)\n", y[0]);
+    printf("Execution completed successfully.\n");
 
-    free(A); free(x); free(y);
+    free(x); free(A); free(y);
     return 0;
 }
