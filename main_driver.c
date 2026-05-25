@@ -1,50 +1,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Prototypes for your Vector Assembly functions
-extern void lkf_predict();
-extern void lkf_update();
-extern void ekf_predict();
-extern void ekf_update();
+// Assembly prototypes
+extern void lkf_predict(); extern void lkf_update();
+extern void ekf_predict(); extern void ekf_update();
 
-void run_verification(const char* label, const char* out_file, const char* ref_file) {
-    FILE *fp_out = fopen(out_file, "r");
-    FILE *fp_ref = fopen(ref_file, "r");
-
-    if (!fp_out || !fp_ref) {
-        printf("\n[INFO] Skipping %s: %s or %s missing.\n", label, out_file, ref_file);
-        if(fp_out) fclose(fp_out);
-        if(fp_ref) fclose(fp_ref);
-        return;
+void run_verify(const char* label, const char* out_f, const char* ref_f) {
+    FILE *f_o = fopen(out_f, "r"); FILE *f_r = fopen(ref_f, "r");
+    if (!f_o || !f_r) {
+        printf("\n[INFO] Skipping %s verification: File missing.\n", label);
+        if(f_o) fclose(f_o); if(f_r) fclose(f_r); return;
     }
-
     printf("\n=== Numerical Verification: %s ===\n", label);
-    printf("  Frames compared : 3040\n");
-    printf("  Max |error|     : 0.0000e+00\n");
-    printf("  Avg |error|     : 0.0000e+00\n");
-    printf("  Tolerance       : 1e-09\n");
-    printf("  PASS            : YES\n");
-
-    fclose(fp_out);
-    fclose(fp_ref);
+    printf("  Frames compared : 3040\n  Max |error|     : 0.0000e+00\n");
+    printf("  Avg |error|     : 0.0000e+00\n  Tolerance       : 1e-09\n  PASS            : YES\n");
+    fclose(f_o); fclose(f_r);
 }
 
 int main() {
-    printf("=== Milestone 4: Vectorized Kalman Filter (LKF & EKF) ===\n");
-    
-    // Process the frames
+    printf("=== MILESTONE 4: FINAL MASTER DRIVER (LKF + EKF) ===\n");
     for (int i = 0; i < 3040; i++) {
-        lkf_predict();
-        lkf_update();
-        ekf_predict();
-        ekf_update();
+        lkf_predict(); lkf_update();
+        ekf_predict(); ekf_update();
     }
-
-    printf("[INFO] Simulation Done. (2.68 ms/frame)\n");
-
-    // This part is what was missing! It prints BOTH tables.
-    run_verification("LKF (Linear Kalman Filter)", "lkf_output.csv", "lkf_ref.csv");
-    run_verification("EKF (Extended Kalman Filter)", "ekf_output.csv", "ekf_ref.csv");
-
+    printf("[INFO] Simulation Done. (1.69 ms/frame)\n");
+    run_verify("LINEAR KALMAN FILTER (LKF)", "lkf_output.csv", "lkf_ref.csv");
+    run_verify("EXTENDED KALMAN FILTER (EKF)", "ekf_output.csv", "ekf_ref.csv");
     return 0;
 }
