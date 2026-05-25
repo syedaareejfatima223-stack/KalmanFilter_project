@@ -3,7 +3,8 @@ CFLAGS = -march=rv64gcv -mabi=lp64d -O2 -static
 LDFLAGS = -lm
 
 TARGET = kalman_m4
-OBJS = lkf_driver.o lkf_vector.o ekf_vector.o
+# We only use main_driver.o now
+OBJS = main_driver.o lkf_vector.o ekf_vector.o
 
 all: $(TARGET)
 
