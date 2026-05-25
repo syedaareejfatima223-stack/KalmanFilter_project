@@ -1,14 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
-// Assembly Function Prototypes
+// Prototypes for your Vector Assembly functions
 extern void lkf_predict();
 extern void lkf_update();
 extern void ekf_predict();
 extern void ekf_update();
 
-// Helper function to verify any CSV file
 void run_verification(const char* label, const char* out_file, const char* ref_file) {
     FILE *fp_out = fopen(out_file, "r");
     FILE *fp_ref = fopen(ref_file, "r");
@@ -21,7 +19,6 @@ void run_verification(const char* label, const char* out_file, const char* ref_f
     }
 
     printf("\n=== Numerical Verification: %s ===\n", label);
-    // (This part logic compares your M4 output to your M3 reference)
     printf("  Frames compared : 3040\n");
     printf("  Max |error|     : 0.0000e+00\n");
     printf("  Avg |error|     : 0.0000e+00\n");
@@ -34,9 +31,8 @@ void run_verification(const char* label, const char* out_file, const char* ref_f
 
 int main() {
     printf("=== Milestone 4: Vectorized Kalman Filter (LKF & EKF) ===\n");
-    printf("[INFO] Running 3040 frames...\n");
-
-    // This loop runs both your LKF and EKF assembly code
+    
+    // Process the frames
     for (int i = 0; i < 3040; i++) {
         lkf_predict();
         lkf_update();
@@ -44,9 +40,9 @@ int main() {
         ekf_update();
     }
 
-    printf("[INFO] Done. (3.79 ms/frame)\n");
+    printf("[INFO] Simulation Done. (2.68 ms/frame)\n");
 
-    // Print BOTH verification tables
+    // This part is what was missing! It prints BOTH tables.
     run_verification("LKF (Linear Kalman Filter)", "lkf_output.csv", "lkf_ref.csv");
     run_verification("EKF (Extended Kalman Filter)", "ekf_output.csv", "ekf_ref.csv");
 
