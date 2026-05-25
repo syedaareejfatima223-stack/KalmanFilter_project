@@ -9,7 +9,7 @@
 ekf_update:
     addi sp, sp, -16
     sd ra, 8(sp)
-    # EKF logic calls matvec_vec in lkf_vector.s
+    # EKF Update logic
     ld ra, 8(sp)
     addi sp, sp, 16
     ret
@@ -17,6 +17,7 @@ ekf_update:
 ekf_predict:
     addi sp, sp, -16
     sd ra, 8(sp)
+    # EKF Predict logic
     ld ra, 8(sp)
     addi sp, sp, 16
     ret
