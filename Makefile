@@ -1,24 +1,27 @@
-# --- Milestone 4 Makefile ---
-CC = riscv64-unknown-elf-gcc
-AS = riscv64-unknown-elf-as
-# -march=rv64gcv: Enables General, Compressed, and Vector extensions
-# -mabi=lp64d: 64-bit ABI with Double-precision FP
+CC = riscv64-linux-gnu-gcc
+# Critical: Enables Vector (v) extension and static linking
 CFLAGS = -march=rv64gcv -mabi=lp64d -O2 -static
-ASFLAGS = -march=rv64gcv -mabi=lp64d
+LDFLAGS = -lm
 
-SRCS = lkf_vector.s ekf_vector.s main.c
-OBJS = lkf_vector.o ekf_vector.o main.o
+# Files to compile
+SRCS = lkf_driver.c lkf_vector.s ekf_vector.s
+OBJS = lkf_driver.o lkf_vector.o ekf_vector.o
+TARGET = lkf_filter
 
-all: kalman_m4
+all: $(TARGET)
 
-kalman_m4: $(OBJS)
-	$(CC) $(CFLAGS) -o kalman_m4 $(OBJS) -lm
-
-%.o: %.s
-	$(CC) $(ASFLAGS) -c $< -o $@
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
+	@echo "----------------------------------------------------------------"
+	@echo "Build successful! Run with:"
+	@echo "qemu-riscv64 -cpu rv64,v=true,vlen=128 ./lkf_filter"
+	@echo "----------------------------------------------------------------"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+%.o: %.s
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	rm -f *.o kalman_m4
+	rm -f *.o $(TARGET) trace.txt
