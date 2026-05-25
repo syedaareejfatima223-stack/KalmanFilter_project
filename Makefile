@@ -2,19 +2,15 @@ CC = riscv64-linux-gnu-gcc
 CFLAGS = -march=rv64gcv -mabi=lp64d -O2 -static
 LDFLAGS = -lm
 
-# List all your source files here
-SRCS = main_driver.c lkf_vector.s ekf_vector.s
-OBJS = main_driver.o lkf_vector.o ekf_vector.o
-TARGET = kalman_filter
+TARGET = lkf_filter
+# Using your existing driver and the two vector files
+OBJS = lkf_driver.o lkf_vector.o ekf_vector.o
 
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
-	@echo "----------------------------------------------------------------"
-	@echo "Build successful! Run with:"
-	@echo "qemu-riscv64 -cpu rv64,v=true,vlen=128 ./$(TARGET)"
-	@echo "----------------------------------------------------------------"
+	@echo "Build successful. Run with: qemu-riscv64 -cpu rv64,v=true,vlen=128 ./lkf_filter"
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -23,4 +19,4 @@ $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f *.o $(TARGET) trace.txt
+	rm -f *.o $(TARGET)
